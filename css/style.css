@@ -713,23 +713,109 @@ canvas#output-canvas {
 }
 
 /* --- Photo Frames & Strip UI --- */
+.frame-selector-container {
+    position: absolute;
+    bottom: 210px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 90%;
+    max-width: 500px;
+}
 .frame-selector {
     display: flex;
     gap: 10px;
-    margin-top: 15px;
+    justify-content: center;
+    flex-wrap: wrap; /* allow wrapping on small screens */
 }
 .frame-btn {
-    padding: 5px 15px;
+    padding: 6px 16px;
     border-radius: 20px;
     border: 1px solid var(--glass-border);
     background: var(--glass-bg);
     color: var(--text-color);
     cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
+.frame-btn:hover { background: var(--card-bg); }
 .frame-btn.active {
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .top-bar {
+        padding: 0 10px;
+        top: 15px;
+    }
+    .icon-btn {
+        width: 38px; height: 38px;
+    }
+    .center-stats {
+        flex-direction: column;
+        gap: 2px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        align-items: center;
+    }
+    .badges-overlay {
+        top: 85px;
+        left: 10px;
+        gap: 6px;
+    }
+    .badge {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+    }
+    
+    .bottom-dock {
+        bottom: 105px;
+    }
+    .dock-container {
+        padding: 10px 15px;
+        gap: 10px;
+    }
+    .dock-item .icon-wrapper {
+        width: 42px; height: 42px;
+    }
+    .dock-item span {
+        font-size: 0.7rem;
+    }
+    
+    .frame-selector-container {
+        bottom: 185px;
+        width: 95%;
+    }
+    .frame-selector {
+        gap: 6px;
+    }
+    .frame-btn {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .capture-container {
+        bottom: 20px;
+    }
+    .capture-btn {
+        width: 60px; height: 60px;
+    }
+    
+    .strip-overlay {
+        bottom: 240px;
+        padding: 8px 16px;
+    }
+    .strip-instruction {
+        font-size: 0.95rem;
+    }
+    .strip-count {
+        font-size: 1.2rem;
+    }
 }
 
 /* Strip Mode Sequence Overlay */
