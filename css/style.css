@@ -106,6 +106,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh; /* Fix for mobile browser URL bar clipping */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -283,8 +284,10 @@ body {
     position: relative;
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     max-width: 800px;
     max-height: 90vh;
+    max-height: 90dvh;
     border-radius: 30px;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
@@ -297,6 +300,7 @@ body {
     .canvas-container {
         max-width: 100%;
         max-height: 100vh;
+        max-height: 100dvh;
         border-radius: 0;
     }
 }
@@ -747,74 +751,111 @@ canvas#output-canvas {
     box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
 }
 
-/* --- Mobile Responsiveness --- */
+/* --- Mobile Responsiveness (IG Style) --- */
 @media (max-width: 768px) {
+    /* Top Bar & Badges */
     .top-bar {
-        padding: 0 10px;
+        padding: 0 15px;
         top: 15px;
     }
     .icon-btn {
-        width: 38px; height: 38px;
+        width: 40px; height: 40px;
+        background: rgba(0,0,0,0.3);
+        border: none;
+        color: white;
     }
     .center-stats {
         flex-direction: column;
         gap: 2px;
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        align-items: center;
-    }
-    .badges-overlay {
-        top: 85px;
-        left: 10px;
-        gap: 6px;
-    }
-    .badge {
         padding: 4px 10px;
         font-size: 0.7rem;
+        align-items: center;
+        background: transparent;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    .badges-overlay {
+        top: 75px;
+        left: 15px;
+        gap: 8px;
+    }
+    .badge {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        background: rgba(0,0,0,0.4);
+        border: none;
+    }
+    
+    /* Bottom Elements - IG Style Layout */
+    .capture-container {
+        bottom: 50px; /* Center-bottom prominent */
+    }
+    .capture-btn {
+        width: 75px; height: 75px;
+        border-width: 5px;
     }
     
     .bottom-dock {
-        bottom: 105px;
+        bottom: 140px; /* Above capture button */
+        width: 100%;
+        -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
     }
     .dock-container {
-        padding: 10px 15px;
-        gap: 10px;
+        padding: 10px 20px;
+        gap: 15px;
     }
     .dock-item .icon-wrapper {
-        width: 42px; height: 42px;
+        width: 48px; height: 48px;
+        background: rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     .dock-item span {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
     
     .frame-selector-container {
-        bottom: 185px;
-        width: 95%;
+        bottom: 15px; /* Very bottom, like IG Modes */
+        width: 100%;
+        max-width: 100%;
     }
     .frame-selector {
-        gap: 6px;
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 0 10px;
+        justify-content: center;
+        scrollbar-width: none;
     }
+    .frame-selector::-webkit-scrollbar { display: none; }
     .frame-btn {
-        padding: 5px 12px;
+        padding: 4px 12px;
         font-size: 0.8rem;
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.7);
+        font-weight: 600;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
-    
-    .capture-container {
-        bottom: 20px;
-    }
-    .capture-btn {
-        width: 60px; height: 60px;
+    .frame-btn.active {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        box-shadow: none;
     }
     
     .strip-overlay {
-        bottom: 240px;
-        padding: 8px 16px;
+        bottom: 220px;
+        padding: 8px 20px;
+        background: rgba(0,0,0,0.6);
     }
-    .strip-instruction {
-        font-size: 0.95rem;
+    
+    /* Landing Page Mobile Fix */
+    .landing-content {
+        padding: 2rem 1.5rem;
+        width: 90%;
+        max-width: 350px;
     }
-    .strip-count {
-        font-size: 1.2rem;
+    .title {
+        font-size: 2rem;
     }
 }
 
