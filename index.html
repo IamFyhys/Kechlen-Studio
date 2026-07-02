@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kechlen Studio - Camera Experience</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- MediaPipe Legacy CDN for ease of pure JS setup -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Landing Page -->
+    <section id="landing-page" class="view active">
+        <div class="background-elements">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="sparkles"></div>
+        </div>
+        <div class="landing-content">
+            <h1 class="title">Welcome to Kechlen Studio</h1>
+            <p class="subtitle">Capture your best moment with Me.</p>
+            <button id="start-camera-btn" class="primary-btn">
+                <i data-lucide="camera"></i> Start Camera
+            </button>
+        </div>
+    </section>
+
+    <!-- Camera View -->
+    <section id="camera-view" class="view hidden">
+        
+        <!-- Video elements (hidden, used for processing) -->
+        <video id="input-video" class="hidden" autoplay playsinline></video>
+        
+        <!-- Main Canvas for Rendering -->
+        <div class="canvas-container">
+            <canvas id="output-canvas"></canvas>
+            
+            <!-- Badges Overlay -->
+            <div class="badges-overlay">
+                <div class="badge" id="ai-status"><i data-lucide="cpu"></i> <span id="ai-status-text">Ready</span></div>
+                <div class="badge" id="gesture-status"><i data-lucide="hand"></i> <span id="gesture-text">None</span></div>
+                <div class="badge" id="effect-status"><i data-lucide="wand-2"></i> <span id="effect-text">Normal</span></div>
+            </div>
+            
+            <!-- Live Frame Overlay -->
+            <div id="live-frame-overlay" class="live-frame"></div>
+            
+            <!-- Particle Container -->
+            <div id="particle-container" class="particle-container"></div>
+            
+            <!-- Strip Mode Countdown & Instructions -->
+            <div id="strip-overlay" class="strip-overlay hidden">
+                <div id="strip-instruction" class="strip-instruction">Smile 😊</div>
+                <div id="strip-count" class="strip-count">3</div>
+            </div>
+            
+            <!-- Top Controls -->
+            <div class="top-bar">
+                <div class="left-controls">
+                    <button id="gallery-toggle" class="icon-btn" title="Gallery"><i data-lucide="image"></i></button>
+                    <button id="history-btn" class="icon-btn" title="History"><i data-lucide="history"></i></button>
+                </div>
+                
+                <div class="center-stats">
+                    <div class="time-display" id="clock">12:00</div>
+                    <div class="fps-display"><span id="fps-counter">0</span> FPS</div>
+                    <div class="res-display"><span id="res-counter">--</span></div>
+                </div>
+
+                <div class="right-controls">
+                    <button id="theme-toggle" class="icon-btn" title="Theme"><i data-lucide="palette"></i></button>
+                    <button id="settings-btn" class="icon-btn" title="Settings"><i data-lucide="settings"></i></button>
+                    <button id="fullscreen-btn" class="icon-btn" title="Fullscreen"><i data-lucide="maximize"></i></button>
+                </div>
+            </div>
+            
+            <!-- Theme Selector Menu -->
+            <div id="theme-selector" class="theme-selector">
+                <button class="theme-btn active" data-theme-val="light">Light Mode</button>
+                <button class="theme-btn" data-theme-val="dark">Dark Premium</button>
+                <button class="theme-btn" data-theme-val="sakura">🌸 Sakura</button>
+                <button class="theme-btn" data-theme-val="cozy">☕ Cozy Café</button>
+                <button class="theme-btn" data-theme-val="rainy">🌧️ Rainy Night</button>
+                <button class="theme-btn" data-theme-val="neon">🌃 Neon City</button>
+                <button class="theme-btn" data-theme-val="minimal">⚪ Minimal White</button>
+            </div>
+
+            <!-- Face Warning Overlays -->
+            <div id="smart-warning" class="smart-warning hidden">
+                Move to center
+            </div>
+            
+            <!-- Love Mode Overlay -->
+            <div id="love-overlay" class="love-overlay hidden">
+                <div class="floating-hearts"></div>
+                <div class="heart-frame"></div>
+            </div>
+        </div>
+
+        <!-- Floating Dock Navigation -->
+        <nav class="bottom-dock">
+            <div class="dock-container">
+                <button class="dock-item active" data-effect="normal">
+                    <div class="icon-wrapper"><i data-lucide="circle"></i></div>
+                    <span>Normal</span>
+                </button>
+                <button class="dock-item" data-effect="portrait">
+                    <div class="icon-wrapper"><i data-lucide="user"></i></div>
+                    <span>Portrait</span>
+                </button>
+                <button class="dock-item" data-effect="beauty">
+                    <div class="icon-wrapper"><i data-lucide="sparkles"></i></div>
+                    <span>Beauty</span>
+                </button>
+                <button class="dock-item" data-effect="vintage">
+                    <div class="icon-wrapper"><i data-lucide="film"></i></div>
+                    <span>Vintage</span>
+                </button>
+                <button class="dock-item" data-effect="golden">
+                    <div class="icon-wrapper"><i data-lucide="sun"></i></div>
+                    <span>Golden</span>
+                </button>
+                <button class="dock-item" data-effect="bw">
+                    <div class="icon-wrapper"><i data-lucide="camera"></i></div>
+                    <span>B&W</span>
+                </button>
+                <button class="dock-item" data-effect="mirror">
+                    <div class="icon-wrapper"><i data-lucide="flip-horizontal"></i></div>
+                    <span>Mirror</span>
+                </button>
+                <button class="dock-item" data-effect="love">
+                    <div class="icon-wrapper"><i data-lucide="heart"></i></div>
+                    <span>Love</span>
+                </button>
+                <button class="dock-item" data-effect="strip">
+                    <div class="icon-wrapper"><i data-lucide="rows"></i></div>
+                    <span>Photo Strip</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Frame Selector (Above Capture) -->
+        <div class="capture-container" style="bottom: 200px;">
+            <div class="frame-selector" id="frame-selector">
+                <button class="frame-btn active" data-frame="none">No Frame</button>
+                <button class="frame-btn" data-frame="polaroid">Polaroid</button>
+                <button class="frame-btn" data-frame="kawaii">Kawaii</button>
+                <button class="frame-btn" data-frame="film">Film Strip</button>
+            </div>
+        </div>
+
+        <!-- Capture Button -->
+        <div class="capture-container">
+            <button id="capture-btn" class="capture-btn">
+                <div class="capture-inner"></div>
+            </button>
+        </div>
+
+        <!-- Gallery Drawer -->
+        <div id="gallery-drawer" class="drawer">
+            <div class="drawer-handle"></div>
+            <div class="drawer-header">
+                <h3>Recent Captures</h3>
+                <button id="close-gallery" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Images will be injected here -->
+                <p class="empty-text">No photos yet.</p>
+            </div>
+        </div>
+        
+        <!-- Photo Preview Modal -->
+        <div id="preview-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-preview" class="secondary-btn close-modal"><i data-lucide="arrow-left"></i> Back to Camera</button>
+                <img id="preview-img" src="" alt="Preview">
+                
+                <!-- AI Scorecard -->
+                <div class="ai-scorecard">
+                    <div class="score-row">
+                        <span>Lighting Quality</span>
+                        <span id="score-lighting-val">0%</span>
+                    </div>
+                    <div class="score-bar-bg"><div class="score-bar-fill" id="score-lighting-bar"></div></div>
+                    
+                    <div class="score-row">
+                        <span>Smile Detection</span>
+                        <span id="score-smile-val">0%</span>
+                    </div>
+                    <div class="score-bar-bg"><div class="score-bar-fill" id="score-smile-bar"></div></div>
+                    
+                    <div class="score-row">
+                        <span>Composition</span>
+                        <span id="score-comp-val">0%</span>
+                    </div>
+                    <div class="score-bar-bg"><div class="score-bar-fill" id="score-comp-bar"></div></div>
+                </div>
+
+                <div class="preview-actions" style="margin-top: 15px;">
+                    <button id="download-btn" class="primary-btn"><i data-lucide="download"></i> Download</button>
+                    <button id="share-btn" class="secondary-btn"><i data-lucide="share-2"></i> Share</button>
+                    <button id="delete-btn" class="danger-btn"><i data-lucide="trash-2"></i> Delete</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/gesture.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/gallery.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+    
+</body>
+</html>
